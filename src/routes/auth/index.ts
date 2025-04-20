@@ -48,7 +48,16 @@ export async function register(req: Request, res: Response): Promise<any> {
       },
     });
 
-    res.status(201).json({ message: "User created successfully", data: user });
+    const token = createToken(user.id);
+
+    res
+      .status(201)
+      .cookie("jwt", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .json({ message: "User created successfully", data: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
